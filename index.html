@@ -1,48 +1,85 @@
+<!DOCTYPE html>
 <html>
 <head>
-    <title>Example</title>
-    <script>
-        // Função para recarregar a página após 160 segundos (2m40s)
-        function timedRefresh(timeoutPeriod) {
-            setTimeout(() => location.reload(true), timeoutPeriod);
-        }
-        window.onload = () => timedRefresh(160000);
-    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mudar Conteúdo e Cor pelo Horário</title>
     <style>
-        /* Estilização básica do fundo com transição suave */
-        body {
+        /* Estilização do Body */
+        * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+        }
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             transition: background-color 1s ease;
+        }
+        iframe {
+            border: none;
+            width: 1313px;
+            height: 768px;
         }
     </style>
 </head>
 <body>
-    <script>
-        function hora() {
-            const time = new Date().getHours();
-            const iframe = document.getElementById("id_do_iframe");
 
-            // Lógica para trocar o iframe conforme o horário
-            if (time < 12) {
-                iframe.src = "https://docs.google.com/presentation/d/e/2PACX-1vQEFyF0AzvE_JuRYQDoL1b-XGzgAN7v1-NfbXWV7iN2OXsSzkkV_7uAA5_hKNGwFF4jrc7Dqn7EGGaH/embed?start=true&loop=true&delayms=3000";
-                document.body.style.backgroundColor = "#FFDDC1"; // Cor clara - manhã
-            } 
-            else if (time < 16) {
-                iframe.src = "https://docs.google.com/presentation/d/e/2PACX-1vTdSwl_k2t0sqmRzVlNkKzkHf_qKHbfr_f-q15p8NJDnoKjSmBgyw88HHEC8s2CaZinHtkLSJKdww7w/embed?start=true&loop=true&delayms=3000";
-                document.body.style.backgroundColor = "#FF8C42"; // Cor laranja - tarde
-            } 
-            else {
-                iframe.src = "https://docs.google.com/presentation/d/e/2PACX-1vQF37P_n6lpDiL9zv0kn7CN4LJpMNuEH5t8g3Cv00D0AEjXD-ICLpTP5QSWnTAHeWrTUkD-sxQKKxhl/embed?start=true&loop=true&delayms=3000";
-                document.body.style.backgroundColor = "#1E293B"; // Cor escura - noite
+    <iframe id="id_do_iframe" allowfullscreen="true"></iframe>
+
+    <script>
+        // Objeto com as cores e URLs para cada período
+        const settings = {
+            manhã: {
+                src: "https://docs.google.com/presentation/d/e/2PACX-1vQEFyF0AzvE_JuRYQDoL1b-XGzgAN7v1-NfbXWV7iN2OXsSzkkV_7uAA5_hKNGwFF4jrc7Dqn7EGGaH/embed?start=true&loop=true&delayms=3000",
+                backgroundColor: "#FFDDC1"
+            },
+            tarde: {
+                src: "https://docs.google.com/presentation/d/e/2PACX-1vTdSwl_k2t0sqmRzVlNkKzkHf_qKHbfr_f-q15p8NJDnoKjSmBgyw88HHEC8s2CaZinHtkLSJKdww7w/embed?start=true&loop=true&delayms=3000",
+                backgroundColor: "#FF8C42"
+            },
+            noite: {
+                src: "https://docs.google.com/presentation/d/e/2PACX-1vQF37P_n6lpDiL9zv0kn7CN4LJpMNuEH5t8g3Cv00D0AEjXD-ICLpTP5QSWnTAHeWrTUkD-sxQKKxhl/embed?start=true&loop=true&delayms=3000",
+                backgroundColor: "#1E293B"
+            }
+        };
+
+        // Função para obter o período atual
+        function getCurrentPeriod() {
+            const hour = new Date().getHours();
+            if (hour < 12) return "manhã";        // Até 11:59
+            if (hour < 16) return "tarde";        // Até 15:59
+            return "noite";                        // Após 16:00
+        }
+
+        // Função para atualizar o iframe e a cor de fundo
+        function updatePage() {
+            const period = getCurrentPeriod();
+            const iframe = document.getElementById("id_do_iframe");
+            
+            // Define a cor de fundo
+            document.body.style.backgroundColor = settings[period].backgroundColor;
+
+            // Garante que o iframe carregue o conteúdo
+            iframe.onload = function() {
+                console.log(`✅ Iframe carregado para o período: ${period}`);
+            };
+
+            // Atribui o src após garantir o iframe
+            if (iframe) {
+                iframe.src = settings[period].src;
+                console.log(`🔄 Atualizando iframe para: ${period}`);
             }
         }
 
-        // Executa a função ao carregar a página
-        window.onload = hora;
-    </script> 
+        // Atualiza imediatamente ao carregar
+        window.addEventListener("DOMContentLoaded", updatePage);
 
-    <iframe id="id_do_iframe" scrolling="auto" src="" frameborder="0" width="1313" height="768" allowfullscreen="true"></iframe>
+        // Atualiza a cada 5 minutos (300000 ms)
+        setInterval(updatePage, 300000);
+    </script>
+
 </body>
 </html>
